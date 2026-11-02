@@ -39,7 +39,7 @@ public class ProductService {
 
 
     public ProductResponse createProduct(ProductRequest request) {
-        Product product=Product.builder()
+        Product product = Product.builder()
                 .name(request.getName())
                 .sku(request.getSku())
                 .description(request.getDescription())
@@ -47,7 +47,7 @@ public class ProductService {
                 .category(request.getCategory())
                 .stockQty(request.getStockQty())
                 .build();
-        Product saved=productRepo.save(product);
+        Product saved = productRepo.save(product);
         return mapToProductResponse(saved);
     }
 
@@ -58,7 +58,7 @@ public class ProductService {
 
 
     public ProductResponse updateProd(ProductRequest productRequest, Long id) {
-        Product product=productRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Product not found"));
+        Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -66,7 +66,7 @@ public class ProductService {
         product.setCategory(productRequest.getCategory());
         product.setSku(productRequest.getSku());
 
-        Product newProduct=productRepo.save(product);
+        Product newProduct = productRepo.save(product);
         return mapToProductResponse(newProduct);
 
 

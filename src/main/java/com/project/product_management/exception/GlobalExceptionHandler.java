@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,27 +18,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException resourceNotFoundException) {
         Map<String, Object> error = new HashMap<>();
-        error.put("timestamp",LocalDateTime.now());
+        error.put("timestamp", LocalDateTime.now());
         error.put("status", HttpStatus.NOT_FOUND.value());
-        error.put("error","NOT FOUND");
-        error.put("message",resourceNotFoundException.getMessage());
+        error.put("error", "NOT FOUND");
+        error.put("message", resourceNotFoundException.getMessage());
 
-        return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String,Object>> handleValidationException(MethodArgumentNotValidException exception){
-        Map<String, String> errors=new HashMap<>();
-        exception.getBindingResult().getAllErrors().forEach(error-> {
-            String fieldName=((FieldError)error).getField();
-            String errorMsg=error.getDefaultMessage();
-            errors.put(fieldName,errorMsg);
+    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+        exception.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMsg = error.getDefaultMessage();
+            errors.put(fieldName, errorMsg);
         });
 
-        Map<String ,Object> response =new HashMap<>();
-        response.put("timestamp",LocalDateTime.now());
-        response.put("status",HttpStatus.BAD_REQUEST.value());
-        response.put("errors",errors);
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("errors", errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
