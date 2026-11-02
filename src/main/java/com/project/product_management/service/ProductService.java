@@ -7,7 +7,11 @@ import com.project.product_management.entity.Product;
 import com.project.product_management.exception.ResourceNotFoundException;
 import com.project.product_management.repo.ProductRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +74,10 @@ public class ProductService {
         return mapToProductResponse(newProduct);
 
 
+    }
+
+    public Page<ProductResponse> search(String category, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        Page<Product> products = productRepo.searchProducts(category, minPrice, maxPrice, pageable);
+        return products.map(this::mapToProductResponse);
     }
 }
