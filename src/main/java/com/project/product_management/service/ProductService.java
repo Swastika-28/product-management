@@ -7,6 +7,10 @@ import com.project.product_management.entity.Product;
 import com.project.product_management.exception.ResourceNotFoundException;
 import com.project.product_management.repo.ProductRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,8 @@ public class ProductService {
 
     private final ProductRepo productRepo;
 
+
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(Long id) {
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found id :" + id));
@@ -42,6 +48,8 @@ public class ProductService {
     }
 
 
+    @CachePut(value = "products", key = "#result.id")
+    @CacheEvict(value = "productSearches", allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
         Product product = Product.builder()
                 .name(request.getName())
@@ -55,12 +63,19 @@ public class ProductService {
         return mapToProductResponse(saved);
     }
 
+
+    @Caching(evict = {
+            @CacheEvict(value = "products", key = "#id"),
+            @CacheEvict(value = "productSearches", allEntries = true)
+    })
     public void delete(Long id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         productRepo.delete(product);
     }
 
 
+    @CachePut(value = "products", key = "#id")
+    @CacheEvict(value = "productSearches", allEntries = true)
     public ProductResponse updateProd(ProductRequest productRequest, Long id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setName(productRequest.getName());
@@ -76,6 +91,7 @@ public class ProductService {
 
     }
 
+    @Cacheable(value = "productSearches", key = "#category + '_' + #minPrice + '_' + #maxPrice + '_' + #pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
     public Page<ProductResponse> search(String category, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         Page<Product> products = productRepo.searchProducts(category, minPrice, maxPrice, pageable);
         return products.map(this::mapToProductResponse);
